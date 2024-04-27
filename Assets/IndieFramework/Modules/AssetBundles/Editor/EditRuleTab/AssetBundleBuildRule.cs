@@ -13,7 +13,6 @@ public enum PackMode {
 [System.Serializable]
 public class AssetBundleBuildRule {
     public bool foldout;
-    public string assetBundleName;    // AssetBundle的名字
     public string assetBundleVariant; // AssetBundle的后缀
     public string destinationPath;          // 配置的目录
     public PackMode packMode;         // 打包方式

@@ -1,18 +1,15 @@
 ﻿using UnityEditor;
 using System;
 
-namespace AssetBundleBrowser.AssetBundleDataSource
-{
+namespace AssetBundleBrowser.AssetBundleDataSource {
     /// <summary>
     /// Build Info struct used by ABDataSource to pass needed build data around.
     /// </summary>
-    public partial class ABBuildInfo
-    {
+    public partial class ABBuildInfo {
         /// <summary>
         /// Directory to place build result
         /// </summary>
-        public string outputDirectory
-        {
+        public string outputDirectory {
             get { return m_outputDirectory; }
             set { m_outputDirectory = value; }
         }
@@ -20,8 +17,7 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         /// <summary>
         /// Standard asset bundle build options.
         /// </summary>
-        public BuildAssetBundleOptions options
-        {
+        public BuildAssetBundleOptions options {
             get { return m_options; }
             set { m_options = value; }
         }
@@ -29,8 +25,7 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         /// <summary>
         /// Target platform for build.
         /// </summary>
-        public BuildTarget buildTarget
-        {
+        public BuildTarget buildTarget {
             get { return m_buildTarget; }
             set { m_buildTarget = value; }
         }
@@ -38,12 +33,19 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         /// <summary>
         /// Callback for build event.
         /// </summary>
-        public Action<string> onBuild
-        {
+        public Action<string> onBuild {
             get { return m_onBuild; }
             set { m_onBuild = value; }
         }
         private Action<string> m_onBuild;
+
+
+        private AssetBundleBuild[] m_assetBundleBuilds;
+
+        public AssetBundleBuild[] assetBundleBuilds {
+            get { return m_assetBundleBuilds; }
+            set { m_assetBundleBuilds = value; }
+        }
     }
 
     /// <summary>
@@ -56,8 +58,7 @@ namespace AssetBundleBrowser.AssetBundleDataSource
     ///   public static List<ABDataSource> CreateDataSources();
     /// 
     /// </summary>
-    public partial interface ABDataSource
-    {
+    public partial interface ABDataSource {
         //// all derived classes must implement the following interface in order to be picked up by the browser.
         //public static List<ABDataSource> CreateDataSources();
 
@@ -73,7 +74,7 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         /// <summary>
         /// Array of paths in bundle.
         /// </summary>
-        string[] GetAssetPathsFromAssetBundle (string assetBundleName);
+        string[] GetAssetPathsFromAssetBundle(string assetBundleName);
         /// <summary>
         /// Name of bundle explicitly associated with asset at path.  
         /// </summary>
@@ -98,7 +99,7 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         /// <summary>
         /// Sets the asset bundle name (and variant) on a given asset
         /// </summary>
-        void SetAssetBundleNameAndVariant (string assetPath, string bundleName, string variantName);
+        void SetAssetBundleNameAndVariant(string assetPath, string bundleName, string variantName);
         /// <summary>
         /// Clears out any asset bundle names that do not have assets associated with them.
         /// </summary>
@@ -121,6 +122,6 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         /// Executes data source's implementation of asset bundle building.
         ///   Called by "build" button in build tab of tool.
         /// </summary>
-        bool BuildAssetBundles (ABBuildInfo info);
+        bool BuildAssetBundles(ABBuildInfo info);
     }
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using AssetBundleBrowser.AssetBundleDataSource;
+using IndieFramework;
 
 namespace AssetBundleBrowser {
     [System.Serializable]
@@ -314,7 +315,13 @@ namespace AssetBundleBrowser {
                         opt |= tog.option;
                 }
             }
+            AssetBundleBuildPreprocessor preprocessor = new AssetBundleBuildPreprocessor();
+            AssetBundleBuild[] customBuildRules = preprocessor.ProcessRules();
 
+            if (customBuildRules == null || customBuildRules.Length == 0) {
+                Debug.LogError("AssetBundle Build: No valid build rules.");
+                return;
+            }
             ABBuildInfo buildInfo = new ABBuildInfo();
 
             buildInfo.outputDirectory = m_UserData.m_OutputPath;

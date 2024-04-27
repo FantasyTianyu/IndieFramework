@@ -19,19 +19,18 @@ namespace IndieFramework {
             LoadBuildRules();
         }
 
-        // 配置文件所在的路径
-        private readonly string configFilePath = "Assets/Project/AssetBundleBuildRules.json";
+
 
 
         private void LoadBuildRules() {
-            buildRules = RuleSaveUtil.DeserializeFromJson<List<AssetBundleBuildRule>>(configFilePath);
+            buildRules = RuleSaveUtil.DeserializeFromJson<List<AssetBundleBuildRule>>();
             if (buildRules == null) {
                 Debug.LogError("Failed to load build rules from config file. Creating a new list.");
                 buildRules = new List<AssetBundleBuildRule>();
             }
         }
         private void SaveBuildRules() {
-            RuleSaveUtil.SerializeToJson<List<AssetBundleBuildRule>>(buildRules, configFilePath);
+            RuleSaveUtil.SerializeToJson<List<AssetBundleBuildRule>>(buildRules);
             AssetDatabase.Refresh();
             Debug.Log("AssetBundle Build Rules saved.");
         }
@@ -48,7 +47,7 @@ namespace IndieFramework {
                 GUI.FocusControl(null);
             }
             EditorGUILayout.EndHorizontal();
-            rule.assetBundleName = EditorGUILayout.TextField("AssetBundle Name:", rule.assetBundleName);
+            //rule.assetBundleName = EditorGUILayout.TextField("AssetBundle Name:", rule.assetBundleName);
             rule.assetBundleVariant = EditorGUILayout.TextField("AssetBundle Variant:", rule.assetBundleVariant);
             rule.packMode = (PackMode)EditorGUILayout.EnumPopup("Pack Mode:", rule.packMode);
             EditorGUI.indentLevel--;
@@ -58,7 +57,7 @@ namespace IndieFramework {
             var newRule = new AssetBundleBuildRule {
                 destinationPath = path,
                 foldout = false,
-                assetBundleName = "",
+                //assetBundleName = "",
                 assetBundleVariant = "",
                 packMode = PackMode.PackByDirectory,
             };
@@ -68,7 +67,6 @@ namespace IndieFramework {
         internal void OnGUI() {
             GUILayout.Label("AssetBundle Build Rules", EditorStyles.boldLabel);
 
-            // New rule directory input
             EditorGUILayout.BeginHorizontal();
             newRuleDirectory = EditorGUILayout.TextField("New Rule Directory:", newRuleDirectory);
             if (GUILayout.Button("...", GUILayout.MaxWidth(30))) {
@@ -92,7 +90,7 @@ namespace IndieFramework {
                         if (GUILayout.Button("Remove", GUILayout.MaxWidth(80))) {
                             buildRules.RemoveAt(i);
                             EditorGUILayout.EndHorizontal();
-                            break; // Break to prevent issues after changing the list
+                            break;
                         }
                         EditorGUILayout.EndHorizontal();
 
