@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 2953176195
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: matgroupa
+      Dependencies: {}
+    Info_1:
+      Name: matgroupb
+      Dependencies: {}
+    Info_2:
+      Name: cube
+      Dependencies: {}
+    Info_3:
+      Name: sphere
+      Dependencies: {}
+    Info_4:
+      Name: testpacktogether
+      Dependencies: {}

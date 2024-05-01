@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.IMGUI.Controls;
 
-namespace AssetBundleBrowser.AssetBundleDataSource
-{
-    internal class AssetDatabaseABDataSource : ABDataSource
-    {
-        public static List<ABDataSource> CreateDataSources()
-        {
+namespace AssetBundleBrowser.AssetBundleDataSource {
+    internal class AssetDatabaseABDataSource : ABDataSource {
+        public static List<ABDataSource> CreateDataSources() {
             var op = new AssetDatabaseABDataSource();
             var retList = new List<ABDataSource>();
             retList.Add(op);
@@ -30,7 +27,7 @@ namespace AssetBundleBrowser.AssetBundleDataSource
             }
         }
 
-        public string[] GetAssetPathsFromAssetBundle (string assetBundleName) {
+        public string[] GetAssetPathsFromAssetBundle(string assetBundleName) {
             return AssetDatabase.GetAssetPathsFromAssetBundle(assetBundleName);
         }
 
@@ -47,54 +44,51 @@ namespace AssetBundleBrowser.AssetBundleDataSource
         }
 
         public string GetImplicitAssetBundleName(string assetPath) {
-            return AssetDatabase.GetImplicitAssetBundleName (assetPath);
+            return AssetDatabase.GetImplicitAssetBundleName(assetPath);
         }
 
         public string[] GetAllAssetBundleNames() {
-            return AssetDatabase.GetAllAssetBundleNames ();
+            return AssetDatabase.GetAllAssetBundleNames();
         }
 
         public bool IsReadOnly() {
             return false;
         }
 
-        public void SetAssetBundleNameAndVariant (string assetPath, string bundleName, string variantName) {
+        public void SetAssetBundleNameAndVariant(string assetPath, string bundleName, string variantName) {
             AssetImporter.GetAtPath(assetPath).SetAssetBundleNameAndVariant(bundleName, variantName);
         }
 
         public void RemoveUnusedAssetBundleNames() {
-            AssetDatabase.RemoveUnusedAssetBundleNames ();
+            AssetDatabase.RemoveUnusedAssetBundleNames();
         }
 
-        public bool CanSpecifyBuildTarget { 
-            get { return true; } 
+        public bool CanSpecifyBuildTarget {
+            get { return true; }
         }
-        public bool CanSpecifyBuildOutputDirectory { 
-            get { return true; } 
-        }
-
-        public bool CanSpecifyBuildOptions { 
-            get { return true; } 
+        public bool CanSpecifyBuildOutputDirectory {
+            get { return true; }
         }
 
-        public bool BuildAssetBundles (ABBuildInfo info) {
-            if(info == null)
-            {
+        public bool CanSpecifyBuildOptions {
+            get { return true; }
+        }
+
+        public bool BuildAssetBundles(ABBuildInfo info) {
+            if (info == null) {
                 Debug.Log("Error in build");
                 return false;
             }
 
-            var buildManifest = BuildPipeline.BuildAssetBundles(info.outputDirectory, info.options, info.buildTarget);
-            if (buildManifest == null)
-            {
+            //var buildManifest = BuildPipeline.BuildAssetBundles(info.outputDirectory, info.options, info.buildTarget);
+            var buildManifest = BuildPipeline.BuildAssetBundles(info.outputDirectory, info.assetBundleBuilds, info.options, info.buildTarget);
+            if (buildManifest == null) {
                 Debug.Log("Error in build");
                 return false;
             }
 
-            foreach(var assetBundleName in buildManifest.GetAllAssetBundles())
-            {
-                if (info.onBuild != null)
-                {
+            foreach (var assetBundleName in buildManifest.GetAllAssetBundles()) {
+                if (info.onBuild != null) {
                     info.onBuild(assetBundleName);
                 }
             }

@@ -263,8 +263,12 @@ namespace AssetBundleBrowser {
 
             // build.
             EditorGUILayout.Space();
-            if (GUILayout.Button("Build")) {
+            if (GUILayout.Button("Build(全量打包)")) {
                 EditorApplication.delayCall += ExecuteBuild;
+            }
+            //增量式打包
+            if (GUILayout.Button("Incremental Build(增量式打包)")) {
+                EditorApplication.delayCall += ExecuteIncrementalBuild;
             }
             GUILayout.EndVertical();
             EditorGUILayout.EndScrollView();
@@ -315,19 +319,96 @@ namespace AssetBundleBrowser {
                         opt |= tog.option;
                 }
             }
-            AssetBundleBuildPreprocessor preprocessor = new AssetBundleBuildPreprocessor();
-            AssetBundleBuild[] customBuildRules = preprocessor.ProcessRules();
+            IBuildStrategy buildStrategy = new FullBuildStrategy();
+            var rules = RuleSaveUtil.DeserializeFromJson<List<AssetBundleBuildRule>>();
+            AssetBundleBuild[] customBuildRules = buildStrategy.GetBundlesToBuild(rules);
 
             if (customBuildRules == null || customBuildRules.Length == 0) {
                 Debug.LogError("AssetBundle Build: No valid build rules.");
                 return;
             }
             ABBuildInfo buildInfo = new ABBuildInfo();
-
+            buildInfo.assetBundleBuilds = customBuildRules;
             buildInfo.outputDirectory = m_UserData.m_OutputPath;
             buildInfo.options = opt;
             buildInfo.buildTarget = (BuildTarget)m_UserData.m_BuildTarget;
             buildInfo.onBuild = (assetBundleName) => {
+                Debug.Log($"AssetBundle {assetBundleName} build success");
+                if (m_InspectTab == null)
+                    return;
+                m_InspectTab.AddBundleFolder(buildInfo.outputDirectory);
+                m_InspectTab.RefreshBundles();
+            };
+
+            AssetBundleModel.Model.DataSource.BuildAssetBundles(buildInfo);
+
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
+            if (m_CopyToStreaming.state)
+                DirectoryCopy(m_UserData.m_OutputPath, m_streamingPath);
+        }
+
+        private void ExecuteIncrementalBuild() {
+            AssetDatabase.SaveAssets();
+            if (AssetBundleModel.Model.DataSource.CanSpecifyBuildOutputDirectory) {
+                if (string.IsNullOrEmpty(m_UserData.m_OutputPath))
+                    BrowseForFolder();
+
+                if (string.IsNullOrEmpty(m_UserData.m_OutputPath)) //in case they hit "cancel" on the open browser
+                {
+                    Debug.LogError("AssetBundle Build: No valid output path for build.");
+                    return;
+                }
+
+                if (m_ForceRebuild.state) {
+                    string message = "Do you want to delete all files in the directory " + m_UserData.m_OutputPath;
+                    if (m_CopyToStreaming.state)
+                        message += " and " + m_streamingPath;
+                    message += "?";
+                    if (EditorUtility.DisplayDialog("File delete confirmation", message, "Yes", "No")) {
+                        try {
+                            if (Directory.Exists(m_UserData.m_OutputPath))
+                                Directory.Delete(m_UserData.m_OutputPath, true);
+
+                            if (m_CopyToStreaming.state)
+                                if (Directory.Exists(m_streamingPath))
+                                    Directory.Delete(m_streamingPath, true);
+                        } catch (System.Exception e) {
+                            Debug.LogException(e);
+                        }
+                    }
+                }
+                if (!Directory.Exists(m_UserData.m_OutputPath))
+                    Directory.CreateDirectory(m_UserData.m_OutputPath);
+            }
+
+            BuildAssetBundleOptions opt = BuildAssetBundleOptions.None;
+
+            if (AssetBundleModel.Model.DataSource.CanSpecifyBuildOptions) {
+                if (m_UserData.m_Compression == CompressOptions.Uncompressed)
+                    opt |= BuildAssetBundleOptions.UncompressedAssetBundle;
+                else if (m_UserData.m_Compression == CompressOptions.ChunkBasedCompression)
+                    opt |= BuildAssetBundleOptions.ChunkBasedCompression;
+                foreach (var tog in m_ToggleData) {
+                    if (tog.state)
+                        opt |= tog.option;
+                }
+            }
+            IBuildStrategy buildStrategy = new IncrementalBuildStrategy();
+            var rules = RuleSaveUtil.DeserializeFromJson<List<AssetBundleBuildRule>>();
+            AssetBundleBuild[] customBuildRules = buildStrategy.GetBundlesToBuild(rules);
+
+            if (customBuildRules == null || customBuildRules.Length == 0) {
+                Debug.LogError("AssetBundle Build: No valid build rules.");
+                return;
+            }
+            ABBuildInfo buildInfo = new ABBuildInfo();
+            buildInfo.assetBundleBuilds = customBuildRules;
+            buildInfo.outputDirectory = m_UserData.m_OutputPath;
+            buildInfo.options = opt;
+            buildInfo.buildTarget = (BuildTarget)m_UserData.m_BuildTarget;
+            buildInfo.onBuild = (assetBundleName) => {
+                Debug.Log($"AssetBundle {assetBundleName} build success");
                 if (m_InspectTab == null)
                     return;
                 m_InspectTab.AddBundleFolder(buildInfo.outputDirectory);

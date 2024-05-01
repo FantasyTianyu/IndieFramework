@@ -6,8 +6,9 @@ using UnityEngine;
 
 namespace IndieFramework {
     public class RuleSaveUtil {
+        public static readonly string AssetBundleHashesPath = "Assets/AssetBundleCache/AssetBundleHashes.json";
         // 配置文件所在的路径
-        private static readonly string configFilePath = "Assets/Project/AssetBundleBuildRules.json";
+        private static readonly string configFilePath = "Assets/AssetBundleCache/AssetBundleBuildRules.json";
 #if UNITY_EDITOR
         // 序列化一个对象到JSON，并保存到指定路径
         public static void SerializeToJson<T>(T objectToSerialize) {

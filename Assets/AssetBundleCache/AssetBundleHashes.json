@@ -1,0 +1,7 @@
+{
+  "Assets/BundleAssets/TestPackByDirectory/MatGroupA": "6e4a38f9fd2d37d28d6bff19c6619638af327903be341e88eb204e50e906b151d2fbe0c02c619abad29932e0eb8638692fca3fed71f35b0730ae3a83e3728cae",
+  "Assets/BundleAssets/TestPackByDirectory/MatGroupB": "5874962ba4a8d35b21711e820845c083258945f58101a1e3e4dcde7e3f981b18cf3bfc4a75223fae97f51927f1581f375533be7d96e8d772bf6afa1f74e5ff68",
+  "Assets/BundleAssets/TestPackByFile/Cube.prefab": "a6bdda48c99275210a1930b58c62451b8fbbebcd4b45eb16789bae352f55ce09",
+  "Assets/BundleAssets/TestPackByFile/Sphere.prefab": "6496173e471e3fc5d7020fa34c10da9aec1365a750425408783c3dd6dd57c38d",
+  "Assets/BundleAssets/TestPackTogether": "3333194772a12da579caf9bb610f07d80e6402b7eea2753f05335b23671a34b1e0e5f38562e3b792b8b348ffba871d216062567d8b54a6d68f905b5531852c8d"
+}

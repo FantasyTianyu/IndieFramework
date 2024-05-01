@@ -1,0 +1,20 @@
+[
+  {
+    "foldout": true,
+    "assetBundleVariant": "ab",
+    "destinationPath": "C:/GitHubProjects/IndieFramework/Assets/BundleAssets/TestPackByDirectory",
+    "packMode": 1
+  },
+  {
+    "foldout": true,
+    "assetBundleVariant": "ab",
+    "destinationPath": "C:/GitHubProjects/IndieFramework/Assets/BundleAssets/TestPackByFile",
+    "packMode": 0
+  },
+  {
+    "foldout": true,
+    "assetBundleVariant": "ab",
+    "destinationPath": "C:/GitHubProjects/IndieFramework/Assets/BundleAssets/TestPackTogether",
+    "packMode": 2
+  }
+]
