@@ -12,6 +12,7 @@ namespace IndieFramework {
     public class IncrementalBuildStrategy : IBuildStrategy {
         private Dictionary<string, string> lastBuildHashes;
         private Dictionary<string, string> currentBuildHashes = new Dictionary<string, string>();
+        private AssetBundleMapping assetBundleMapping;
         public IncrementalBuildStrategy() {
             this.lastBuildHashes = LoadOrInitializeLastBuildHashes();
         }
@@ -27,6 +28,7 @@ namespace IndieFramework {
         }
         public AssetBundleBuild[] GetBundlesToBuild(IEnumerable<AssetBundleBuildRule> rules) {
             var bundlesToBuild = new List<AssetBundleBuild>();
+            assetBundleMapping = new AssetBundleMapping();
             foreach (var rule in rules) {
                 switch (rule.packMode) {
                     case PackMode.PackByFile:
@@ -52,34 +54,41 @@ namespace IndieFramework {
                                     AssetDatabase.ImportAsset(file);
                                 }
                             }
+                            assetBundleMapping.AddEntry(file, Path.GetFileNameWithoutExtension(file));
                         }
                         break;
                     case PackMode.PackByDirectory:
                         var directories = Directory.GetDirectories(rule.destinationPath, "*", SearchOption.TopDirectoryOnly);
                         foreach (var dir in directories) {
-                            var relatedFiles = Directory.GetFiles(dir, ".", SearchOption.AllDirectories)
+                            string dirRelativePath = dir.Replace("\\", "/").Replace(Application.dataPath, "Assets");
+                            var relatedFiles = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories)
                                 .Where(file => !file.EndsWith(".meta") && !file.EndsWith(".DS_Store"))
                                 .Select(file => file.Replace("\\", "/").Replace(Application.dataPath, "Assets"))
                                 .ToArray();
-                            // 文件夹hash不存在或者和之前的hash不一样，重新放入打包数组中，实现增量打包
-                            var dirHash = string.Join("", relatedFiles.Select(CalculateSHA256).OrderBy(h => h));
-                            string assetBundleKeyPackByDirectory = dir.Replace("\\", "/").Replace(Application.dataPath, "Assets");
-                            currentBuildHashes[assetBundleKeyPackByDirectory] = dirHash;
-                            if (!lastBuildHashes.TryGetValue(assetBundleKeyPackByDirectory, out var lastDirHash) || lastDirHash != dirHash) {
-                                string abName = new DirectoryInfo(dir).Name;
+
+                            string dirHash = CalculateDirectoryHash(relatedFiles);
+                            currentBuildHashes[dirRelativePath] = dirHash;
+
+                            bool directoryHasChanged = !lastBuildHashes.TryGetValue(dirRelativePath, out var lastDirHash) || lastDirHash != dirHash;
+
+                            if (directoryHasChanged) {
+                                string bundleName = Path.GetFileName(dir);
                                 bundlesToBuild.Add(new AssetBundleBuild {
-                                    assetBundleName = abName,
+                                    assetBundleName = bundleName,
                                     assetNames = relatedFiles
                                 });
-                                foreach (var file in relatedFiles) {
-                                    AssetImporter assetImporterPackByFile = AssetImporter.GetAtPath(file);
-                                    if (assetImporterPackByFile != null) {
-                                        // 设置AssetBundle的名字和变体
-                                        assetImporterPackByFile.assetBundleName = abName;
-                                        assetImporterPackByFile.assetBundleVariant = rule.assetBundleVariant;
+                            }
 
-                                        // 保存修改
-                                        AssetDatabase.ImportAsset(file);
+                            string abName = Path.GetFileName(dir);
+                            foreach (var file in relatedFiles) {
+                                assetBundleMapping.AddEntry(file, abName);
+                                if (directoryHasChanged) {
+                                    // 文件夹hash有变动，则更新AssetImporter信息
+                                    var importer = AssetImporter.GetAtPath(file);
+                                    if (importer != null) {
+                                        importer.assetBundleName = abName;
+                                        importer.assetBundleVariant = rule.assetBundleVariant;
+                                        AssetDatabase.ImportAsset(file, ImportAssetOptions.ForceUpdate);
                                     }
                                 }
                             }
@@ -101,6 +110,7 @@ namespace IndieFramework {
                                 assetNames = allFiles
                             });
                             foreach (var file in allFiles) {
+                                assetBundleMapping.AddEntry(file, abName);
                                 AssetImporter assetImporterPackByFile = AssetImporter.GetAtPath(file);
                                 if (assetImporterPackByFile != null) {
                                     // 设置AssetBundle的名字和变体
@@ -115,10 +125,31 @@ namespace IndieFramework {
                         break;
                 }
             }
+            assetBundleMapping.SaveToPath();
             SaveCurrentBuildHashes();
             AssetDatabase.Refresh();
             return bundlesToBuild.ToArray();
 
+        }
+
+        private string CalculateDirectoryHash(IEnumerable<string> filePaths) {
+            using (SHA256 sha256 = SHA256.Create()) {
+                List<byte> hashList = new List<byte>();
+
+                foreach (var filePath in filePaths.OrderBy(p => p).Select(f => Path.Combine(Application.dataPath, f.Substring(7)))) // 从Assets/去除
+                {
+                    byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(filePath);
+                    hashList.AddRange(sha256.ComputeHash(pathBytes));
+
+                    if (File.Exists(filePath)) {
+                        byte[] contentBytes = File.ReadAllBytes(filePath);
+                        hashList.AddRange(sha256.ComputeHash(contentBytes));
+                    }
+                }
+
+                var hashBytes = sha256.ComputeHash(hashList.ToArray());
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
         }
 
         private void SaveCurrentBuildHashes() {

@@ -10,12 +10,12 @@ namespace IndieFramework {
         private Vector2 scrollPosition;
         private string newRuleDirectory;
         private List<AssetBundleBuildRule> buildRules;
-        internal void OnEnable() {
+        public void OnEnable() {
             Debug.Log("加载当前的打包规则");
             LoadBuildRules();
         }
 
-        internal void RefreshData() {
+        public void RefreshData() {
             LoadBuildRules();
         }
 
@@ -64,7 +64,7 @@ namespace IndieFramework {
             buildRules.Add(newRule);
         }
 
-        internal void OnGUI() {
+        public void OnGUI() {
             GUILayout.Label("AssetBundle Build Rules", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal();

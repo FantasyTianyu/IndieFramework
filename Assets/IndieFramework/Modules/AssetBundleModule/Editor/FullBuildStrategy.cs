@@ -11,10 +11,10 @@ using UnityEngine;
 namespace IndieFramework {
     public class FullBuildStrategy : IBuildStrategy {
         private Dictionary<string, string> currentBuildHashes = new Dictionary<string, string>();
-
+        private AssetBundleMapping assetBundleMapping;
         public AssetBundleBuild[] GetBundlesToBuild(IEnumerable<AssetBundleBuildRule> rules) {
             var bundlesToBuild = new List<AssetBundleBuild>();
-
+            assetBundleMapping = new AssetBundleMapping();
             foreach (var rule in rules) {
                 switch (rule.packMode) {
                     case PackMode.PackByFile:
@@ -38,6 +38,7 @@ namespace IndieFramework {
                                 // 保存修改
                                 AssetDatabase.ImportAsset(file);
                             }
+                            assetBundleMapping.AddEntry(file, Path.GetFileNameWithoutExtension(file));
                         }
                         break;
 
@@ -66,6 +67,7 @@ namespace IndieFramework {
                                     // 保存修改
                                     AssetDatabase.ImportAsset(file);
                                 }
+                                assetBundleMapping.AddEntry(file, abNamePackByDirectory);
                             }
                         }
                         break;
@@ -92,11 +94,13 @@ namespace IndieFramework {
                                 // 保存修改
                                 AssetDatabase.ImportAsset(file);
                             }
+                            assetBundleMapping.AddEntry(file, new DirectoryInfo(rule.destinationPath).Name);
                         }
                         break;
                 }
             }
             SaveCurrentBuildHashes();
+            assetBundleMapping.SaveToPath();
             AssetDatabase.Refresh();
             return bundlesToBuild.ToArray();
         }

@@ -1,0 +1,10 @@
+{
+  "Assets/BundleAssets/TestPackByDirectory/MatGroupA/A_1.mat": "MatGroupA",
+  "Assets/BundleAssets/TestPackByDirectory/MatGroupA/A_2.mat": "MatGroupA",
+  "Assets/BundleAssets/TestPackByDirectory/MatGroupB/B1.mat": "MatGroupB",
+  "Assets/BundleAssets/TestPackByDirectory/MatGroupB/B2.mat": "MatGroupB",
+  "Assets/BundleAssets/TestPackByFile/Cube.prefab": "Cube",
+  "Assets/BundleAssets/TestPackByFile/Sphere.prefab": "Sphere",
+  "Assets/BundleAssets/TestPackTogether/Anim1.anim": "TestPackTogether",
+  "Assets/BundleAssets/TestPackTogether/Anim2.anim": "TestPackTogether"
+}

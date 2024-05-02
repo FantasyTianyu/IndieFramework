@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2953176195
+CRC: 3364198912
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: matgroupa
+      Name: matgroupb
       Dependencies: {}
     Info_1:
-      Name: matgroupb
+      Name: matgroupa
       Dependencies: {}
     Info_2:
       Name: cube

@@ -342,10 +342,9 @@ namespace AssetBundleBrowser {
 
             AssetBundleModel.Model.DataSource.BuildAssetBundles(buildInfo);
 
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-
             if (m_CopyToStreaming.state)
                 DirectoryCopy(m_UserData.m_OutputPath, m_streamingPath);
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
         private void ExecuteIncrementalBuild() {
@@ -417,10 +416,9 @@ namespace AssetBundleBrowser {
 
             AssetBundleModel.Model.DataSource.BuildAssetBundles(buildInfo);
 
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-
             if (m_CopyToStreaming.state)
                 DirectoryCopy(m_UserData.m_OutputPath, m_streamingPath);
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
         private static void DirectoryCopy(string sourceDirName, string destDirName) {

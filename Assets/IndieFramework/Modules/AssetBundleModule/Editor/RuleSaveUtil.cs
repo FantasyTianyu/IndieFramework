@@ -34,6 +34,6 @@ namespace IndieFramework {
             T objectToDeserialize = JsonConvert.DeserializeObject<T>(json);
             return objectToDeserialize;
         }
-    }
 #endif
+    }
 }
