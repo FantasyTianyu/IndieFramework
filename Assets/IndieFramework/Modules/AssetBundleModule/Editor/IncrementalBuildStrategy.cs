@@ -42,6 +42,7 @@ namespace IndieFramework {
                             if (!lastBuildHashes.TryGetValue(file, out var lastHash) || lastHash != hash) {
                                 bundlesToBuild.Add(new AssetBundleBuild {
                                     assetBundleName = Path.GetFileNameWithoutExtension(file),
+                                    assetBundleVariant = rule.assetBundleVariant,
                                     assetNames = new[] { file }
                                 });
                                 AssetImporter assetImporter = AssetImporter.GetAtPath(file);
@@ -54,7 +55,7 @@ namespace IndieFramework {
                                     AssetDatabase.ImportAsset(file);
                                 }
                             }
-                            assetBundleMapping.AddEntry(file, Path.GetFileNameWithoutExtension(file));
+                            assetBundleMapping.AddEntry(file, $"{Path.GetFileNameWithoutExtension(file)}.{ rule.assetBundleVariant}".ToLowerInvariant());
                         }
                         break;
                     case PackMode.PackByDirectory:
@@ -75,18 +76,19 @@ namespace IndieFramework {
                                 string bundleName = Path.GetFileName(dir);
                                 bundlesToBuild.Add(new AssetBundleBuild {
                                     assetBundleName = bundleName,
+                                    assetBundleVariant = rule.assetBundleVariant,
                                     assetNames = relatedFiles
                                 });
                             }
 
-                            string abName = Path.GetFileName(dir);
+                            string abNamePackByDirectory = Path.GetFileName(dir);
                             foreach (var file in relatedFiles) {
-                                assetBundleMapping.AddEntry(file, abName);
+                                assetBundleMapping.AddEntry(file, $"{abNamePackByDirectory}.{ rule.assetBundleVariant}".ToLowerInvariant());
                                 if (directoryHasChanged) {
                                     // 文件夹hash有变动，则更新AssetImporter信息
                                     var importer = AssetImporter.GetAtPath(file);
                                     if (importer != null) {
-                                        importer.assetBundleName = abName;
+                                        importer.assetBundleName = abNamePackByDirectory;
                                         importer.assetBundleVariant = rule.assetBundleVariant;
                                         AssetDatabase.ImportAsset(file, ImportAssetOptions.ForceUpdate);
                                     }
@@ -103,24 +105,28 @@ namespace IndieFramework {
                         var allFilesHash = string.Join("", allFiles.Select(CalculateSHA256).OrderBy(h => h));
                         string assetBundleKeyPackTogether = rule.destinationPath.Replace("\\", "/").Replace(Application.dataPath, "Assets");
                         currentBuildHashes[assetBundleKeyPackTogether] = allFilesHash;
+                        string abNamePackTogether = new DirectoryInfo(rule.destinationPath).Name;
                         if (!lastBuildHashes.TryGetValue(assetBundleKeyPackTogether, out var lastAllFilesHash) || lastAllFilesHash != allFilesHash) {
-                            string abName = new DirectoryInfo(rule.destinationPath).Name;
                             bundlesToBuild.Add(new AssetBundleBuild {
-                                assetBundleName = abName,
+                                assetBundleName = abNamePackTogether,
+                                assetBundleVariant = rule.assetBundleVariant,
                                 assetNames = allFiles
                             });
                             foreach (var file in allFiles) {
-                                assetBundleMapping.AddEntry(file, abName);
+
                                 AssetImporter assetImporterPackByFile = AssetImporter.GetAtPath(file);
                                 if (assetImporterPackByFile != null) {
                                     // 设置AssetBundle的名字和变体
-                                    assetImporterPackByFile.assetBundleName = abName;
+                                    assetImporterPackByFile.assetBundleName = abNamePackTogether;
                                     assetImporterPackByFile.assetBundleVariant = rule.assetBundleVariant;
 
                                     // 保存修改
                                     AssetDatabase.ImportAsset(file);
                                 }
                             }
+                        }
+                        foreach (var file in allFiles) {
+                            assetBundleMapping.AddEntry(file, $"{abNamePackTogether}.{rule.assetBundleVariant}".ToLowerInvariant());
                         }
                         break;
                 }

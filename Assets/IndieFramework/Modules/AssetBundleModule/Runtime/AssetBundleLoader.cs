@@ -13,10 +13,10 @@ namespace IndieFramework {
 
         public AssetBundleLoader() {
             // 根据你项目实际用途设置，比如Application.streamingAssetsPath或Application.persistentDataPath
-            baseAssetBundlePath = Path.Combine(Application.streamingAssetsPath, "AssetBundles");
+            baseAssetBundlePath = Application.streamingAssetsPath;
 
             // 根据平台动态设置目录名
-            platformFolderName = GetPlatformFolderForAssetBundles(Application.platform);
+            platformFolderName = GetPlatformFolderForAssetBundles();
 
             // 因为涉及文件IO操作，不要在构造函数中加载manifest，而是使用一个初始化方法
         }
@@ -44,7 +44,7 @@ namespace IndieFramework {
                 await LoadBundleAsync(dependency);
             }
 
-            string bundlePath = Path.Combine(baseAssetBundlePath, platformFolderName, bundleName);
+            string bundlePath = Path.Combine(baseAssetBundlePath, bundleName);
             loadedBundle = await Task.Run(() => AssetBundle.LoadFromFile(bundlePath));
 
             if (loadedBundle != null) {
@@ -66,7 +66,7 @@ namespace IndieFramework {
                 LoadBundle(dependency);
             }
 
-            string bundlePath = Path.Combine(baseAssetBundlePath, platformFolderName, bundleName);
+            string bundlePath = Path.Combine(baseAssetBundlePath, bundleName);
             loadedBundle = AssetBundle.LoadFromFile(bundlePath);
 
             if (loadedBundle != null) {
@@ -85,8 +85,20 @@ namespace IndieFramework {
             }
         }
 
-        public static string GetPlatformFolderForAssetBundles(RuntimePlatform platform) {
-            switch (platform) {
+        public static string GetPlatformFolderForAssetBundles() {
+#if UNITY_EDITOR
+            switch (UnityEditor.EditorUserBuildSettings.activeBuildTarget) {
+                case UnityEditor.BuildTarget.StandaloneWindows:
+                    return "StandaloneWindows";
+                case UnityEditor.BuildTarget.Android:
+                    return "Android";
+                case UnityEditor.BuildTarget.iOS:
+                    return "iOS";
+                default:
+                    return null;
+            }
+#else
+            switch (Application.platform) {
                 case RuntimePlatform.WindowsPlayer:
                 case RuntimePlatform.WindowsEditor:
                     return "StandaloneWindows";
@@ -97,6 +109,8 @@ namespace IndieFramework {
                 default:
                     return null;
             }
+#endif
+
         }
     }
 }

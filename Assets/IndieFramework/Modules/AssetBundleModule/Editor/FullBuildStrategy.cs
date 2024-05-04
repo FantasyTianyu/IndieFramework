@@ -27,6 +27,7 @@ namespace IndieFramework {
                             currentBuildHashes[file] = hash;
                             bundlesToBuild.Add(new AssetBundleBuild {
                                 assetBundleName = Path.GetFileNameWithoutExtension(file),
+                                assetBundleVariant = rule.assetBundleVariant,
                                 assetNames = new[] { file }
                             });
                             AssetImporter assetImporterPackByFile = AssetImporter.GetAtPath(file);
@@ -38,7 +39,7 @@ namespace IndieFramework {
                                 // 保存修改
                                 AssetDatabase.ImportAsset(file);
                             }
-                            assetBundleMapping.AddEntry(file, Path.GetFileNameWithoutExtension(file));
+                            assetBundleMapping.AddEntry(file, $"{Path.GetFileNameWithoutExtension(file)}.{ rule.assetBundleVariant}".ToLowerInvariant());
                         }
                         break;
 
@@ -55,6 +56,7 @@ namespace IndieFramework {
                             string abNamePackByDirectory = new DirectoryInfo(dir).Name;
                             bundlesToBuild.Add(new AssetBundleBuild {
                                 assetBundleName = abNamePackByDirectory,
+                                assetBundleVariant = rule.assetBundleVariant,
                                 assetNames = relatedFiles
                             });
                             foreach (var file in relatedFiles) {
@@ -67,7 +69,7 @@ namespace IndieFramework {
                                     // 保存修改
                                     AssetDatabase.ImportAsset(file);
                                 }
-                                assetBundleMapping.AddEntry(file, abNamePackByDirectory);
+                                assetBundleMapping.AddEntry(file, $"{abNamePackByDirectory}.{ rule.assetBundleVariant}".ToLowerInvariant());
                             }
                         }
                         break;
@@ -82,6 +84,7 @@ namespace IndieFramework {
                         string abNamePackTogether = new DirectoryInfo(rule.destinationPath).Name;
                         bundlesToBuild.Add(new AssetBundleBuild {
                             assetBundleName = new DirectoryInfo(rule.destinationPath).Name,
+                            assetBundleVariant = rule.assetBundleVariant,
                             assetNames = allFiles
                         });
                         foreach (var file in allFiles) {
@@ -94,7 +97,7 @@ namespace IndieFramework {
                                 // 保存修改
                                 AssetDatabase.ImportAsset(file);
                             }
-                            assetBundleMapping.AddEntry(file, new DirectoryInfo(rule.destinationPath).Name);
+                            assetBundleMapping.AddEntry(file, $"{ new DirectoryInfo(rule.destinationPath).Name }.{rule.assetBundleVariant}".ToLowerInvariant());
                         }
                         break;
                 }

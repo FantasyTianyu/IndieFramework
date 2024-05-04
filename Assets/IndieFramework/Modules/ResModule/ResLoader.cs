@@ -45,7 +45,7 @@ namespace IndieFramework {
         }
 
         public static T LoadAsset<T>(string assetPath) where T : UnityEngine.Object {
-#if UNITY_EDITOR
+#if !UNITY_EDITOR
             return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(assetPath);
 #else
             if (assetBundleMapping == null) {

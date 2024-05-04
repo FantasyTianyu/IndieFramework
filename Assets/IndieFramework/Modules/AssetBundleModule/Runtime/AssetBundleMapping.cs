@@ -10,7 +10,7 @@ namespace IndieFramework {
         private Dictionary<string, string> pathToBundleMap = new Dictionary<string, string>();
 
         // 运行时路径，用于加载AssetBundle映射的JSON文件。
-        private static string RuntimeBundleMappingFilePath => Path.Combine(Application.dataPath.Replace("Assets", "AssetBundles"), AssetBundleLoader.GetPlatformFolderForAssetBundles(Application.platform), "AssetBundleMapping.json").Replace("\\", "/");
+        private static string RuntimeBundleMappingFilePath => Path.Combine(Application.dataPath.Replace("Assets", "AssetBundles"), AssetBundleLoader.GetPlatformFolderForAssetBundles(), "AssetBundleMapping.json").Replace("\\", "/");
 
         // 初始化映射数据的方法
         public static async Task<AssetBundleMapping> InitializeAsync() {
