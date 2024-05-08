@@ -16,5 +16,11 @@
     "assetBundleVariant": "ab",
     "destinationPath": "C:/GitHubProjects/IndieFramework/Assets/BundleAssets/TestPackTogether",
     "packMode": 2
+  },
+  {
+    "foldout": true,
+    "assetBundleVariant": "ab",
+    "destinationPath": "C:/GitHubProjects/IndieFramework/Assets/BundleAssets/UI/Prefabs",
+    "packMode": 1
   }
 ]

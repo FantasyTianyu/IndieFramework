@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace IndieFramework {
     public class ResLoader {
+        private static readonly string UI_ASSET_PATH_ROOT = "Assets/BundleAssets/UI/Prefabs";
         private static AssetBundleMapping assetBundleMapping;
         private static AssetBundleLoader assetBundleLoader;
         public static async Task InitializeAsync() {
@@ -66,6 +67,16 @@ namespace IndieFramework {
             // Optionally, you may want to unload the AssetBundle here if it's no longer needed
             return asset;
 #endif
+        }
+
+        public static async Task<GameObject> LoadWindowAsync(string windowName) {
+            GameObject window = await LoadAssetAsync<GameObject>($"{UI_ASSET_PATH_ROOT}/{windowName}/{windowName}.prefab");
+            return window;
+        }
+
+        public static GameObject LoadWindow(string windowName) {
+            GameObject window = LoadAsset<GameObject>($"{UI_ASSET_PATH_ROOT}/{windowName}/{windowName}.prefab");
+            return window;
         }
     }
 }
