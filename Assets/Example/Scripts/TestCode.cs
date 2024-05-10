@@ -10,7 +10,9 @@ public class TestCode : MonoBehaviour {
         var cube = ResLoader.LoadAsset<GameObject>("Assets/BundleAssets/TestPackByFile/Cube.prefab");
         if (cube != null) {
             Instantiate(cube);
+            Log.LogInfo("cube crate success");
         }
+
     }
 
     // Update is called once per frame
