@@ -9,7 +9,7 @@ using IndieFramework;
 
 namespace AssetBundleBrowser {
     [System.Serializable]
-    internal class AssetBundleBuildTab {
+    public class AssetBundleBuildTab {
         const string k_BuildPrefPrefix = "ABBBuild:";
 
         private string m_streamingPath = "Assets/StreamingAssets";
@@ -20,7 +20,7 @@ namespace AssetBundleBrowser {
         [SerializeField]
         private Vector2 m_ScrollPosition;
 
-
+        private const string VersionKey = "AssetBundleBrowserLastBuildVersion"; // 用于保存版本号的键值。
         class ToggleData {
             internal ToggleData(bool s,
                 string title,
@@ -70,6 +70,7 @@ namespace AssetBundleBrowser {
             m_UserData = new BuildTabData();
             m_UserData.m_OnToggles = new List<string>();
             m_UserData.m_UseDefaultPath = true;
+
         }
 
         internal void OnDisable() {
@@ -157,6 +158,7 @@ namespace AssetBundleBrowser {
             if (m_UserData.m_UseDefaultPath) {
                 ResetPathToDefault();
             }
+            m_UserData.m_BuildVersion = EditorPrefs.GetString(VersionKey, "1.0.0");
         }
 
         internal void OnGUI() {
@@ -204,6 +206,17 @@ namespace AssetBundleBrowser {
                 //    m_OutputPath = EditorUserBuildSettings.GetPlatformSettings(EditorUserBuildSettings.activeBuildTarget.ToString(), "AssetBundleOutputPath");
                 GUILayout.EndHorizontal();
                 EditorGUILayout.Space();
+
+                GUILayout.BeginHorizontal();
+                EditorGUI.BeginChangeCheck(); // 监测字段是否改变
+                m_UserData.m_BuildVersion = EditorGUILayout.TextField("Version", m_UserData.m_BuildVersion);
+                if (EditorGUI.EndChangeCheck()) // 如果字段改变
+                {
+                    // 将新的版本号保存到EditorPrefs
+                    EditorPrefs.SetString(VersionKey, m_UserData.m_BuildVersion);
+                }
+                GUILayout.EndHorizontal();
+
 
                 newState = GUILayout.Toggle(
                     m_ForceRebuild.state,
@@ -260,6 +273,7 @@ namespace AssetBundleBrowser {
                     EditorGUI.indentLevel = indent;
                 }
             }
+
 
             // build.
             EditorGUILayout.Space();
@@ -344,6 +358,7 @@ namespace AssetBundleBrowser {
 
             if (m_CopyToStreaming.state)
                 DirectoryCopy(m_UserData.m_OutputPath, m_streamingPath);
+            AssetBundleVersionInfoGenerator.GenerateVersionInfo(m_UserData);
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
@@ -418,6 +433,7 @@ namespace AssetBundleBrowser {
 
             if (m_CopyToStreaming.state)
                 DirectoryCopy(m_UserData.m_OutputPath, m_streamingPath);
+            AssetBundleVersionInfoGenerator.GenerateVersionInfo(m_UserData);
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
@@ -497,12 +513,13 @@ namespace AssetBundleBrowser {
         }
 
         [System.Serializable]
-        internal class BuildTabData {
+        public class BuildTabData {
             internal List<string> m_OnToggles;
             internal ValidBuildTarget m_BuildTarget = ValidBuildTarget.StandaloneWindows;
             internal CompressOptions m_Compression = CompressOptions.StandardCompression;
             internal string m_OutputPath = string.Empty;
             internal bool m_UseDefaultPath = true;
+            internal string m_BuildVersion = "1.0.0"; // 初始版本号
         }
     }
 

@@ -9,8 +9,14 @@ namespace IndieFramework {
     public class AssetBundleMapping {
         private Dictionary<string, string> pathToBundleMap = new Dictionary<string, string>();
 
-        // 运行时路径，用于加载AssetBundle映射的JSON文件。
+        // 运行时路径，用于加载AssetBundle映射的JSON文件。与AssetBundleLoader里的baseAssetBundlePath应该在同一个目录
+        // (如果是纯单机游戏资源都放到StreammingAssets下，那么这个mapping也应该放到StreammingAssets下，如果是包含资源ab包更新的，那么这个mapping应该放到cdn最终下载到persistentDataPath下)
+#if UNITY_EDITOR
         private static string RuntimeBundleMappingFilePath => Path.Combine(Application.dataPath.Replace("Assets", "AssetBundles"), AssetBundleLoader.GetPlatformFolderForAssetBundles(), "AssetBundleMapping.json").Replace("\\", "/");
+#else
+        private static string RuntimeBundleMappingFilePath => Path.Combine(Application.streamingAssetsPath, "AssetBundleMapping.json").Replace("\\", "/");
+#endif
+
 
         // 初始化映射数据的方法
         public static async Task<AssetBundleMapping> InitializeAsync() {
