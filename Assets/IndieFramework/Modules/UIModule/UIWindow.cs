@@ -74,15 +74,15 @@ namespace IndieFramework {
             gameObject.SetActive(false);
             OnHide();
         }
-        public virtual void Initialize() {
+        protected virtual void Initialize() {
             // 窗口初始化代码。
         }
 
-        public virtual void OnShow() {
+        protected virtual void OnShow() {
 
         }
 
-        public virtual void OnHide() {
+        protected virtual void OnHide() {
 
         }
     }

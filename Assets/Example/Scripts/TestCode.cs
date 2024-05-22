@@ -14,6 +14,7 @@ public class TestCode : MonoBehaviour {
             Log.LogInfo("cube create success");
         }
 
+        UIManager.Instance.LoadWindow<UITestWindow>();
 
         Coroutine timerCoroutine = TimerService.StartTimer(1f, PrintCurrentTime, true, true);
     }
