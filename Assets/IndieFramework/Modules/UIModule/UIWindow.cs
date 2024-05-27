@@ -41,11 +41,11 @@ namespace IndieFramework {
         }
 
         protected virtual void OnEnable() {
-            UIManager.Instance.AddWindow(this);
+            UIManager.Instance.SortWindow(this);
         }
 
         protected virtual void OnDisable() {
-            UIManager.Instance.RemoveWindow(this);
+            UIManager.Instance.SetWindowLayer(this);
         }
 
         public int SetSortingOrder(int startOrder) {

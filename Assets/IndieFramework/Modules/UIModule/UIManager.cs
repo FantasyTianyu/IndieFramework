@@ -10,8 +10,6 @@ namespace IndieFramework {
 
         private Dictionary<EUIWindowLayer, int> topSortingLayers = new Dictionary<EUIWindowLayer, int>();
 
-        private List<UIWindow> windowList = new List<UIWindow>();
-
         private Dictionary<System.Type, UIWindow> cachedWindow = new Dictionary<System.Type, UIWindow>();
         protected override void Awake() {
             base.Awake();
@@ -22,8 +20,8 @@ namespace IndieFramework {
 
         public async Task<T> LoadWindowAsync<T>() where T : UIWindow {
             if (cachedWindow.ContainsKey(typeof(T))) {
-                T win = (T)cachedWindow[typeof(T)];
-                win.gameObject.SetActive(true);
+                //T win = (T)cachedWindow[typeof(T)];
+                //win.gameObject.SetActive(true);
                 return (T)cachedWindow[typeof(T)];
             } else {
                 GameObject prefab = await ResLoader.LoadWindowAsync(typeof(T).Name);
@@ -37,8 +35,8 @@ namespace IndieFramework {
 
         public T LoadWindow<T>() where T : UIWindow {
             if (cachedWindow.ContainsKey(typeof(T))) {
-                T win = (T)cachedWindow[typeof(T)];
-                win.gameObject.SetActive(true);
+                //T win = (T)cachedWindow[typeof(T)];
+                //win.gameObject.SetActive(true);
                 return (T)cachedWindow[typeof(T)];
             } else {
                 GameObject prefab = ResLoader.LoadWindow(typeof(T).Name);
@@ -49,28 +47,49 @@ namespace IndieFramework {
 
         }
 
-        public void AddWindow(UIWindow win) {
+        public async Task<T> OpenWindowAsync<T>() where T : UIWindow {
+            T win = await LoadWindowAsync<T>();
+            if (win != null) {
+                win.Show();
+            }
+            return win;
+        }
+
+        public T OpenWindow<T>() where T : UIWindow {
+            T win = LoadWindow<T>();
+            if (win != null) {
+                win.Show();
+            }
+            return win;
+        }
+
+        // 关闭指定类型的窗口
+        public void CloseWindow<T>() where T : UIWindow {
+            if (cachedWindow.TryGetValue(typeof(T), out UIWindow win)) {
+                win.Hide();
+            }
+        }
+
+        public void SortWindow(UIWindow win) {
             int curTopOrder;
             topSortingLayers.TryGetValue(win.windowLayer, out curTopOrder);
             int winMaxSortingOrder = win.SetSortingOrder(curTopOrder + 500);
             if (winMaxSortingOrder > curTopOrder) {
                 topSortingLayers[win.windowLayer] = winMaxSortingOrder;
             }
-            windowList.Add(win);
         }
 
-        public void RemoveWindow(UIWindow win) {
-            windowList.Remove(win);
+        public void SetWindowLayer(UIWindow win) {
             topSortingLayers[win.windowLayer] = topSortingLayers[win.windowLayer] - win.GetMaxSortingOrder() - 500;
         }
 
         public void ClearAllWindows() {
-            for (int i = 0; i < windowList.Count; i++) {
-                if (windowList[i].gameObject != null) {
-                    Destroy(windowList[i].gameObject);
+            foreach (var item in cachedWindow) {
+                if (item.Value.gameObject != null) {
+                    Destroy(item.Value.gameObject);
                 }
+
             }
-            windowList.Clear();
             cachedWindow.Clear();
             for (int i = 0; i < 5; i++) {
                 topSortingLayers[(EUIWindowLayer)i] = 0;
