@@ -25,8 +25,9 @@ namespace IndieFramework {
         public async Task<T> LoadWindowAsync<T>() where T : UIWindow {
             if (!cachedWindow.TryGetValue(typeof(T), out UIWindow win)) {
                 GameObject prefab = await ResLoader.LoadWindowAsync(typeof(T).Name);
+                prefab.SetActive(false);
                 GameObject winObject = Instantiate(prefab, UIRoot);
-                winObject.SetActive(false);
+
                 T component = winObject.GetComponent<T>();
                 cachedWindow.Add(typeof(T), component);
                 return component;
@@ -42,8 +43,8 @@ namespace IndieFramework {
         public T LoadWindow<T>() where T : UIWindow {
             if (!cachedWindow.TryGetValue(typeof(T), out UIWindow win)) {
                 GameObject prefab = ResLoader.LoadWindow(typeof(T).Name);
+                prefab.SetActive(false);
                 GameObject winObject = Instantiate(prefab, UIRoot);
-                winObject.SetActive(false);
                 T component = winObject.GetComponent<T>();
                 cachedWindow.Add(typeof(T), component);
                 return component;

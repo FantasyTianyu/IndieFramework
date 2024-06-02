@@ -53,8 +53,9 @@ namespace IndieFramework {
             maxOrder = 0;
             for (int i = 0; i < childCanvases.Length; i++) {
                 childCanvases[i].sortingLayerID = canvas.sortingLayerID;
-                childCanvases[i].sortingOrder = startOrder + childCanvases[i].sortingOrder;
-                if (childCanvases[i].sortingOrder > maxOrder) {
+                int newOrder = startOrder + childCanvases[i].sortingOrder;
+                childCanvases[i].sortingOrder = newOrder;
+                if (newOrder > maxOrder) {
                     maxOrder = childCanvases[i].sortingOrder;
                 }
             }
