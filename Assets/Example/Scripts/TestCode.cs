@@ -17,6 +17,10 @@ public class TestCode : MonoBehaviour {
         UIManager.Instance.LoadWindow<UITestWindow>();
 
         Coroutine timerCoroutine = TimerService.StartTimer(1f, PrintCurrentTime, true, true);
+
+        TimerService.StartTimer(1f, () => {
+            UIManager.Instance.OpenWindow<UITestWindow>();
+        });
     }
 
     private void PrintCurrentTime() {
